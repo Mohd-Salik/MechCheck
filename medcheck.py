@@ -12,13 +12,42 @@ from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.properties import StringProperty
 
+
 class LoginScreen(Screen):
     print("INITIALIZED: LOGIN SCREEN")
-    def initializeUser(self):
-        print("CALLED: initializeUser")
-        userlogged = data.searchUser(self.userlogged.text)   
-        username = (userlogged[0]['firstname'] + " " + userlogged[0]['lastname'])
-        self.manager.get_screen('kv_menu').usernameText = username
+    
+    def verifyUser(self):
+        if data.verifyUserExist(self.useremail.text) == True:
+            userlogged = data.searchUser(self.useremail.text)
+            if self.userpass.text == userlogged[0]['password']:
+                print("password correct")
+                self.parent.current = "kv_menu"
+            else:
+                self.ids.loginlabel.text = "wrong password"
+        else:
+            self.ids.loginlabel.text = "username does not exist"
+
+
+class CreateAccountScreen(Screen):
+    print("INITIALIZED: CREATE ACCOUNT SCREEN")
+
+    def toggleType(self):
+        if (self.ids.toggletype.text == 'DOCTOR ACCOUNT'):
+            self.ids.toggletype.text = 'STANDARD ACCOUNT'
+        elif (self.ids.toggletype.text == 'STANDARD ACCOUNT'):
+            self.ids.toggletype.text = 'DOCTOR ACCOUNT'
+    
+    def createAccountDB(self):
+        acc_type =  self.ids.toggletype.text
+        email =  self.ids.newemail.text
+        password = self.ids.newpass.text
+        first = self.ids.newfirst.text
+        mid = self.ids.newmiddle.text
+        last = self.ids.newlast.text
+        contact = self.ids.contact.text
+        prof = self.ids.profession.text
+        data.insert(first, mid, last, contact, email, password, acc_type, prof, "[0, 0]")
+        print("SUCCESSFULLY CREATED ACCOUNT TO DATABASE")
 
 
 class MenuScreen(Screen):
@@ -33,6 +62,11 @@ class ProfileScreen(Screen):
 
 class FindDoctorScreen(Screen):
     print("INITIALIZED: FIND DOCTOR SCREEN")
+
+
+class LocationMapViewScreen(Screen):
+    print("INITIALIZED: LOCATION MAP VIEW SCREEN")
+
 
 class FindAutomaticScreen(Screen):
     print("INITIALIZED: FIND AUTOMATIC SCREEN")
@@ -61,16 +95,13 @@ class AutomaticMapViewScreen(Screen):
             print("ADDED: marker to map")     
 
 
-class LocationMapViewScreen(Screen):
-    print("INITIALIZED: LOCATION MAP VIEW SCREEN")
-
-
 
 # Main build class
 class medcheckApp(MDApp):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name = 'kv_login'))
+        sm.add_widget(CreateAccountScreen(name = 'kv_createaccount'))
         sm.add_widget(MenuScreen(name = 'kv_menu'))
         sm.add_widget(ProfileScreen(name = 'kv_profile'))
         sm.add_widget(FindDoctorScreen(name = 'kv_finddoctor'))
@@ -81,10 +112,10 @@ class medcheckApp(MDApp):
         print("INITIALIZED: SCREEN MANAGER AND SCREENS")
         return sm
 
+
 if __name__ == "__main__":
     # Database Initialization
     data = Database()
-    userlogged = []
 
     # Kivy Initialization
     userlogged = []

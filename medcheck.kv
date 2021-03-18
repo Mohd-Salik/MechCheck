@@ -1,5 +1,6 @@
 ScreenManager:
     LoginScreen:
+    CreateAccountScreen:
     MenuScreen:
     FindDoctorScreen:
     ProfileScreen:
@@ -7,16 +8,20 @@ ScreenManager:
     AutomaticMapViewScreen:
     LocationMapViewScreen:
 
+
 <LoginScreen>:
     id: login_screen_ID
     name: 'kv_login'
-    userlogged: userlogged
+    loginlabel: loginlabel
+    useremail:  useremail
+    userpass: userpass
     MDLabel:
+        id: loginlabel
         text: 'Welcome to Medcheck'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.9}
     MDTextField:
-        id: userlogged
+        id: useremail
         hint_text: 'Email'
         helper_text: 'please enter your email'
         helper_text_mode: 'on_focus'
@@ -24,12 +29,136 @@ ScreenManager:
         pos_hint: {'center_x': 0.5, 'center_y': 0.7}
         size_hint_x: None
         width: 200
+    MDTextField:
+        id: userpass
+        hint_text: 'Password'
+        helper_text: 'please enter your password'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+        size_hint_x: None
+        width: 200
     MDRectangleFlatButton:
         text: 'LOGIN'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        on_release: 
+            root.verifyUser()  
+    MDRectangleFlatButton:
+        text: 'Create Account'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+        on_release: 
+            root.manager.current = 'kv_createaccount'   
+
+
+<CreateAccountScreen>:
+    id: create_account_ID
+    name: 'kv_createaccount'
+    createaccountlabel: createaccountlabel
+    toggletype: toggletype
+    newemail:  newemail
+    newpass: newpass
+    newfirst: newfirst
+    newmiddle: newmiddle
+    newlast: newlast
+    contact: contact
+    type: type
+    profession: profession
+    MDLabel:
+        id: createaccountlabel
+        text: 'create account screen'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+    MDTextField:
+        id: newemail
+        hint_text: 'Email'
+        helper_text: 'please enter your email'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.85}
+        size_hint_x: None
+        width: 200
+    MDTextField:
+        id: newpass
+        hint_text: 'Password'
+        helper_text: 'please enter your password'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+        size_hint_x: None
+        width: 200
+    MDTextField:
+        id: newfirst
+        hint_text: 'First Name'
+        helper_text: 'please enter your first name'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+        size_hint_x: None
+        width: 200
+    MDTextField:
+        id: newmiddle
+        hint_text: 'Middle Initial'
+        helper_text: 'please enter your middle initial'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+        size_hint_x: None
+        width: 200
+    MDTextField:
+        id: newlast
+        hint_text: 'Surname'
+        helper_text: 'please enter your last name'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.65}
+        size_hint_x: None
+        width: 200
+    MDTextField:
+        id: contact
+        hint_text: 'Contact Number'
+        helper_text: 'please enter your contact number'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+        size_hint_x: None
+        width: 200
+    MDLabel:
+        text: 'SELECT ACCOUNT TYPE'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.55}
+    MDRectangleFlatButton:
+        id: toggletype
+        text: 'DOCTOR ACCOUNT'
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         on_release: 
-            root.manager.current = 'kv_menu'
-            root.initializeUser()
+            root.toggleType()  
+    MDTextField:
+        id: profession
+        hint_text: 'Specialization'
+        helper_text: 'please enter your work field'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+        size_hint_x: None
+        width: 200
+    # BoxLayout:
+    #     FileChooserListView:
+    #         id: filechooser
+    #         title: 'select image'
+    #         halign: 'center'
+    #         pos_hint: {'center_x': 0.5, 'center_y': 0.3} 
+    MDRectangleFlatButton:
+        text: 'CREATE'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+        on_release: 
+            root.createAccountDB()
+            root.manager.current = 'kv_login'  
+    MDRectangleFlatButton:
+        text: 'Back'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+        on_release: 
+            root.manager.current = 'kv_login'    
+
 
 <MenuScreen>:
     name: 'kv_menu'
@@ -45,6 +174,13 @@ ScreenManager:
                             left_action_items: [["menu", lambda x: menu_nav_drawer_ID.toggle_nav_drawer()]]
                             elevation: 10
                         Widget: 
+                            BoxLayout:
+                                MDFlatButton:
+                                    text: "Find Doctors"
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
+                                    on_release: 
+                                        root.manager.current = 'kv_finddoctor'
+                                        root.manager.transition.direction = "left"
             MDNavigationDrawer:
                 id: menu_nav_drawer_ID
                 BoxLayout:
@@ -66,16 +202,11 @@ ScreenManager:
                                 IconLeftWidget:
                                     icon: 'face-profile-woman'
                             OneLineIconListItem:
+                                text: 'Settings'
                                 IconLeftWidget:
                                     icon: 'file-upload'
-                                MDFlatButton:
-                                    text: "Find Doctors"
-                                    halign: 'center'
-                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
-                                    on_release: 
-                                        root.manager.current = 'kv_finddoctor'
-                                        root.manager.transition.direction = "left"
                             OneLineIconListItem:
+                                text: 'Help'
                                 IconLeftWidget:
                                     icon: 'file-upload'
                                 MDFlatButton:
@@ -86,6 +217,7 @@ ScreenManager:
                                     on_release: 
                                         root.manager.current = 'kv_login'
                                         root.manager.transition.direction = "right"
+
 
 <LocationMapViewScreen>:
     name: "kv_locationmapview"
@@ -157,9 +289,9 @@ ScreenManager:
                     root.manager.current = 'kv_locationmapview'
                     root.manager.transition.direction = "left"
 
+
 <FindAutomaticScreen>:
     name: "kv_findautomatic"
-    
     BoxLayout:
         orientation: 'vertical'
         ScrollView:
@@ -220,6 +352,7 @@ ScreenManager:
         on_release: 
             root.manager.current = 'kv_menu'
             root.manager.transition.direction = "right"
+
 
 <ProfileScreen>:
     name: "kv_profile"
