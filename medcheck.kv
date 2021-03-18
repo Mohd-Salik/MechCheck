@@ -1,0 +1,234 @@
+ScreenManager:
+    LoginScreen:
+    MenuScreen:
+    FindDoctorScreen:
+    ProfileScreen:
+    FindAutomaticScreen:
+    AutomaticMapViewScreen:
+    LocationMapViewScreen:
+
+<LoginScreen>:
+    id: login_screen_ID
+    name: 'kv_login'
+    userlogged: userlogged
+    MDLabel:
+        text: 'Welcome to Medcheck'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+    MDTextField:
+        id: userlogged
+        hint_text: 'Email'
+        helper_text: 'please enter your email'
+        helper_text_mode: 'on_focus'
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+        size_hint_x: None
+        width: 200
+    MDRectangleFlatButton:
+        text: 'LOGIN'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        on_release: 
+            root.manager.current = 'kv_menu'
+            root.initializeUser()
+
+<MenuScreen>:
+    name: 'kv_menu'
+    Screen:
+        id: menu_screen1_ID
+        NavigationLayout:
+            ScreenManager:
+                Screen:
+                    BoxLayout:
+                        orientation: 'vertical'
+                        MDToolbar:
+                            title: 'MedCheck Application'
+                            left_action_items: [["menu", lambda x: menu_nav_drawer_ID.toggle_nav_drawer()]]
+                            elevation: 10
+                        Widget: 
+            MDNavigationDrawer:
+                id: menu_nav_drawer_ID
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: '4dp'
+                    padding: '4dp'
+                    Image
+                        source: 'profiles/as@gmail.com.jpg'
+                    MDLabel:
+                        id: menu_nav_drawer_user_ID
+                        text: root.usernameText
+                        halign: 'center'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                    ScrollView:
+                        MDList:
+                            OneLineIconListItem:
+                                text: 'Profile'
+                                IconLeftWidget:
+                                    icon: 'face-profile-woman'
+                            OneLineIconListItem:
+                                IconLeftWidget:
+                                    icon: 'file-upload'
+                                MDFlatButton:
+                                    text: "Find Doctors"
+                                    halign: 'center'
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
+                                    on_release: 
+                                        root.manager.current = 'kv_finddoctor'
+                                        root.manager.transition.direction = "left"
+                            OneLineIconListItem:
+                                IconLeftWidget:
+                                    icon: 'file-upload'
+                                MDFlatButton:
+                                    text: "Logout"
+                                    background_color: 0.3, 0.4, 0.5, 1 
+                                    halign: 'center'
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
+                                    on_release: 
+                                        root.manager.current = 'kv_login'
+                                        root.manager.transition.direction = "right"
+
+<LocationMapViewScreen>:
+    name: "kv_locationmapview"
+    BoxLayout:
+        orientation: 'vertical'
+        MapView:
+            id: locationmapview
+            lat: 11.28
+            lon: 121.85
+            zoom: 5
+            double_tap_zoom: True
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 8
+            size_hint_y: None
+            MDRectangleFlatButton:
+                text: 'Map View'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_automaticmapview'
+                    root.manager.transition.direction = "right"
+            MDRectangleFlatButton:
+                text: 'List View'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_findautomatic'
+                    root.manager.transition.direction = "right"
+            MDRectangleFlatButton:
+                text: 'Set'
+                pos_hint: {'center_y': 0.5}
+                # on_release: root.manager.current = 'kv_findautomatic'
+
+
+<AutomaticMapViewScreen>:
+    name: "kv_automaticmapview"
+    BoxLayout:
+        orientation: 'vertical'
+        MapView:
+            id: automaticmapview
+            lat: 11.28
+            lon: 121.85
+            zoom: 5
+            double_tap_zoom: True
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 8
+            size_hint_y: None
+            MDRectangleFlatButton:
+                text: 'Back.'
+                pos_hint: {'center_y': 0.5}
+                width: 0.2
+                on_release: 
+                    root.manager.current = 'kv_finddoctor'
+                    root.manager.transition.direction = "right"
+            MDRectangleFlatButton:
+                text: 'Search!'
+                pos_hint: {'center_y': 0.5}
+                on_release: root.addMapAutomaticDoctorsList()
+            MDRectangleFlatButton:
+                text: 'List View'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_findautomatic'
+                    root.manager.transition.direction = "down"
+            MDRectangleFlatButton:
+                text: 'My Location'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_locationmapview'
+                    root.manager.transition.direction = "left"
+
+<FindAutomaticScreen>:
+    name: "kv_findautomatic"
+    
+    BoxLayout:
+        orientation: 'vertical'
+        ScrollView:
+            MDList:
+                id: doctor_list
+                MDLabel:
+                    text: 'Search your nearest doctor'
+                    halign: 'center'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 8
+            size_hint_y: None
+            MDRectangleFlatButton:
+                text: 'Back.'
+                pos_hint: {'center_y': 0.5}
+                width: 0.2
+                on_release: 
+                    root.manager.current = "kv_finddoctor"
+                    root.manager.transition.direction = "right"
+            MDRectangleFlatButton:
+                text: 'Search!'
+                pos_hint: {'center_y': 0.5}
+                on_release: root.addAutomaticDoctorsList()
+            MDRectangleFlatButton:
+                text: 'Map View'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_automaticmapview'
+                    root.manager.transition.direction = "up"
+            MDRectangleFlatButton:
+                text: 'My Location'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.manager.current = 'kv_locationmapview'
+                    root.manager.transition.direction = "left"
+        
+
+<FindDoctorScreen>:
+    name: "kv_finddoctor"
+    MDRectangleFlatButton:
+        text: 'Enter Name.'
+        pos_hint: {'center_x': 0.5, 'center_y': 7}
+    MDRectangleFlatButton:
+        text: 'Enter Specialization'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+    MDRectangleFlatButton:
+        text: 'List All.'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    MDRectangleFlatButton:
+        text: 'Find me the closest one.'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        on_release: 
+            root.manager.current = 'kv_findautomatic'
+            root.manager.transition.direction = "left"
+    MDRectangleFlatButton:
+        text: 'Back.'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+        on_release: 
+            root.manager.current = 'kv_menu'
+            root.manager.transition.direction = "right"
+
+<ProfileScreen>:
+    name: "kv_profile"
+    MDLabel:
+        text: 'Welcome to profile'
+        halign: 'center'
+    MDRectangleFlatButton:
+        text: 'Return to Menu'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+        on_release: 
+            root.manager.current = 'kv_menu'
+            root.manager.transition.direction = "right"
