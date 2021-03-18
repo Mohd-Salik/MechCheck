@@ -12,6 +12,14 @@ from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.properties import StringProperty
 
+class LoginScreen(Screen):
+    print("INITIALIZED: LOGIN SCREEN")
+    def initializeUser(self):
+        print("CALLED: initializeUser")
+        userlogged = data.searchUser(self.userlogged.text)   
+        username = (userlogged[0]['firstname'] + " " + userlogged[0]['lastname'])
+        self.manager.get_screen('kv_menu').usernameText = username
+
 
 class MenuScreen(Screen):
     print("INITIALIZED: MENU SCREEN")
@@ -21,15 +29,6 @@ class MenuScreen(Screen):
 class ProfileScreen(Screen):
     print("INITIALIZED: PROFILE SCREEN")
     pass
-
-
-class LoginScreen(Screen):
-    print("INITIALIZED: LOGIN SCREEN")
-    def initializeUser(self):
-        print("CALLED: initializeUser")
-        userlogged = data.searchUser(self.userlogged.text)   
-        username = (userlogged[0]['firstname'] + " " + userlogged[0]['lastname'])
-        self.manager.get_screen('kv_menu').usernameText = username
 
 
 class FindDoctorScreen(Screen):
