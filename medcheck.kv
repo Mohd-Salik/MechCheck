@@ -4,8 +4,8 @@ ScreenManager:
     MenuScreen:
     FindDoctorScreen:
     ProfileScreen:
-    FindAutomaticScreen:
-    AutomaticMapViewScreen:
+    DoctorListViewScreen:
+    DoctorMapViewScreen:
     LocationMapViewScreen:
 
 
@@ -163,7 +163,6 @@ ScreenManager:
 <MenuScreen>:
     name: 'kv_menu'
     Screen:
-        id: menu_screen1_ID
         NavigationLayout:
             ScreenManager:
                 Screen:
@@ -187,7 +186,7 @@ ScreenManager:
                     orientation: 'vertical'
                     spacing: '4dp'
                     padding: '4dp'
-                    Image
+                    Image:
                         source: 'profiles/as@gmail.com.jpg'
                     MDLabel:
                         id: menu_nav_drawer_user_ID
@@ -221,6 +220,8 @@ ScreenManager:
 
 <LocationMapViewScreen>:
     name: "kv_locationmapview"
+    locationmapview: locationmapview
+    locationsetlabel: locationsetlabel
     BoxLayout:
         orientation: 'vertical'
         MapView:
@@ -233,26 +234,27 @@ ScreenManager:
             orientation: 'horizontal'
             spacing: 8
             size_hint_y: None
+            MDLabel:
+                id: locationsetlabel
+                text: 'Set Location'
+                halign: 'center'
             MDRectangleFlatButton:
-                text: 'Map View'
+                text: 'Set Marker'
                 pos_hint: {'center_y': 0.5}
                 on_release: 
-                    root.manager.current = 'kv_automaticmapview'
-                    root.manager.transition.direction = "right"
+                    root.setMarker()
             MDRectangleFlatButton:
-                text: 'List View'
+                text: 'Next'
                 pos_hint: {'center_y': 0.5}
                 on_release: 
-                    root.manager.current = 'kv_findautomatic'
-                    root.manager.transition.direction = "right"
-            MDRectangleFlatButton:
-                text: 'Set'
-                pos_hint: {'center_y': 0.5}
-                # on_release: root.manager.current = 'kv_findautomatic'
+                    root.manager.current = 'kv_doctorlistview'
+                    root.updateLocation()
+                    root.loadDoctors()
 
 
-<AutomaticMapViewScreen>:
-    name: "kv_automaticmapview"
+<DoctorMapViewScreen>:
+    name: "kv_doctormapview"
+    bs: automaticmapview
     BoxLayout:
         orientation: 'vertical'
         MapView:
@@ -266,32 +268,16 @@ ScreenManager:
             spacing: 8
             size_hint_y: None
             MDRectangleFlatButton:
-                text: 'Back.'
-                pos_hint: {'center_y': 0.5}
-                width: 0.2
-                on_release: 
-                    root.manager.current = 'kv_finddoctor'
-                    root.manager.transition.direction = "right"
-            MDRectangleFlatButton:
-                text: 'Search!'
-                pos_hint: {'center_y': 0.5}
-                on_release: root.addMapAutomaticDoctorsList()
-            MDRectangleFlatButton:
                 text: 'List View'
                 pos_hint: {'center_y': 0.5}
                 on_release: 
-                    root.manager.current = 'kv_findautomatic'
+                    root.manager.current = 'kv_doctorlistview'
                     root.manager.transition.direction = "down"
-            MDRectangleFlatButton:
-                text: 'My Location'
-                pos_hint: {'center_y': 0.5}
-                on_release: 
-                    root.manager.current = 'kv_locationmapview'
-                    root.manager.transition.direction = "left"
 
 
-<FindAutomaticScreen>:
-    name: "kv_findautomatic"
+<DoctorListViewScreen>:
+    name: "kv_doctorlistview"
+    doctor_list: doctor_list
     BoxLayout:
         orientation: 'vertical'
         ScrollView:
@@ -309,24 +295,15 @@ ScreenManager:
                 pos_hint: {'center_y': 0.5}
                 width: 0.2
                 on_release: 
+                    root.resetWidgets()
                     root.manager.current = "kv_finddoctor"
                     root.manager.transition.direction = "right"
-            MDRectangleFlatButton:
-                text: 'Search!'
-                pos_hint: {'center_y': 0.5}
-                on_release: root.addAutomaticDoctorsList()
             MDRectangleFlatButton:
                 text: 'Map View'
                 pos_hint: {'center_y': 0.5}
                 on_release: 
-                    root.manager.current = 'kv_automaticmapview'
+                    root.manager.current = 'kv_doctormapview'
                     root.manager.transition.direction = "up"
-            MDRectangleFlatButton:
-                text: 'My Location'
-                pos_hint: {'center_y': 0.5}
-                on_release: 
-                    root.manager.current = 'kv_locationmapview'
-                    root.manager.transition.direction = "left"
         
 
 <FindDoctorScreen>:
@@ -344,8 +321,9 @@ ScreenManager:
         text: 'Find me the closest one.'
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
         on_release: 
-            root.manager.current = 'kv_findautomatic'
+            root.manager.current = 'kv_locationmapview'
             root.manager.transition.direction = "left"
+            root.setInitialLocation()
     MDRectangleFlatButton:
         text: 'Back.'
         pos_hint: {'center_x': 0.5, 'center_y': 0.2}
