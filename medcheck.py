@@ -24,8 +24,8 @@ class LoginScreen(Screen):
             userlogged = self.useremail.text
             print("USER " + userlogged + " EXISTS")
             if self.userpass.text == data.getAccountData(userlogged, 'password'):
-                self.parent.get_screen("kv_menu").usernameText = name
                 name = data.getAccountData(userlogged, 'firstname') + data.getAccountData(userlogged, 'lastname')
+                self.parent.get_screen("kv_menu").usernameText = name
                 print("DEBUG: " + userlogged + " has logged in.")
                 
                 self.parent.current = "kv_menu"
@@ -192,6 +192,7 @@ class DoctorListViewScreen(Screen):
         for marker in delete_list:
             self.parent.get_screen("kv_doctormapview").ids.automaticmapview.remove_marker(marker) 
         self.ids.doctor_list.clear_widgets()
+
 
 class DoctorMapViewScreen(Screen):
     print("INITIALIZED: AUTOMATIC MAP VIEW SCREEN")
