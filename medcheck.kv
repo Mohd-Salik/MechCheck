@@ -43,6 +43,7 @@ ScreenManager:
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
         on_release: 
             root.verifyUser()  
+            root.updatePostWall()
     MDRectangleFlatButton:
         text: 'Create Account'
         pos_hint: {'center_x': 0.5, 'center_y': 0.2}
@@ -162,6 +163,7 @@ ScreenManager:
 
 <MenuScreen>:
     name: 'kv_menu'
+    list_on_menu: list_on_menu
     Screen:
         NavigationLayout:
             ScreenManager:
@@ -172,14 +174,11 @@ ScreenManager:
                             title: 'MedCheck Application'
                             left_action_items: [["menu", lambda x: menu_nav_drawer_ID.toggle_nav_drawer()]]
                             elevation: 10
-                        Widget: 
-                            BoxLayout:
-                                MDFlatButton:
-                                    text: "Find Doctors"
-                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
-                                    on_release: 
-                                        root.manager.current = 'kv_finddoctor'
-                                        root.manager.transition.direction = "left"
+                        BoxLayout:
+                            ScrollView:
+                                MDList:
+                                    id: list_on_menu
+
             MDNavigationDrawer:
                 id: menu_nav_drawer_ID
                 BoxLayout:
@@ -201,11 +200,15 @@ ScreenManager:
                                 IconLeftWidget:
                                     icon: 'face-profile-woman'
                             OneLineIconListItem:
-                                text: 'Settings'
                                 IconLeftWidget:
                                     icon: 'file-upload'
+                                MDFlatButton:
+                                    text: "Find Doctors"
+                                    pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
+                                    on_release: 
+                                        root.manager.current = 'kv_finddoctor'
+                                        root.manager.transition.direction = "left"
                             OneLineIconListItem:
-                                text: 'Help'
                                 IconLeftWidget:
                                     icon: 'file-upload'
                                 MDFlatButton:
