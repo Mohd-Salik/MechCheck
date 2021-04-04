@@ -18,12 +18,19 @@ class Database():
         print("DATABASE: Initialized users class.")
 
     def debug(self):
-        self.sql.execute('''CREATE TABLE appointmentstb
-            (email text, schedule date, birth date, doctor text, reason text, addres text, stats text)''')
+        self.sql.execute("DELETE FROM appointmentstb")
+        # self.sql.execute('''CREATE TABLE appointmentstb
+        #     (email text, schedule date, doctor text, reason text, addres text, stats text)''')
 
         # self.sql.execute("INSERT INTO userstb VALUES ('Mike','M','Myers', '095482081', '1', '1', false, 'Civil Engineer', '[0.43, 123.88]')")
-        # self.db.commit()
+        self.db.commit()
 
+    def insertAppointment(self, email, schedule, doctor, reason, address):
+        print("DATABASE: insertappointment")
+        self.sql.execute("INSERT INTO appointmentstb VALUES ('{0}','{1}','{2}', '{3}', '{4}', 'pending')".format(
+            email, schedule, doctor, reason, address
+        ))
+        self.db.commit()
 
     def insert(self, first, mid, last, contact, email, password, type, prof, location):
         print("DATABASE: insert")
@@ -47,7 +54,15 @@ class Database():
             return self.data[0][0]
         elif data == 'location':
             self.data = self.sql.execute("SELECT maploc FROM userstb WHERE email"+"="+"'{0}'".format(email)).fetchall()
-            return eval(self.data[0][0])         
+            return eval(self.data[0][0])
+        elif data == 'type':
+            self.data = self.sql.execute("SELECT doctor FROM userstb WHERE email"+"="+"'{0}'".format(email)).fetchall()
+        return self.data[0][0]
+
+    def getDoctorBug(self, fname, lname):
+        arguments = "fname='"+fname+"' AND lname='"+lname+"'"
+        self.data = self.sql.execute('''SELECT email FROM userstb WHERE {0}'''.format(arguments)).fetchall()
+        return self.data[0][0]       
     
     def getPostAuthor(self, post):
         self.data = self.sql.execute("SELECT email FROM poststb WHERE post"+"="+"'{0}'".format(post)).fetchall()
@@ -62,6 +77,17 @@ class Database():
                 print("DEBUG: Email exists")
                 return True
         print("DEBUG: Email not exist")
+
+    def loadBooking(self, email):
+        doctor = self.getAccountData(email, 'type')
+        if doctor == True:
+            where = "doctor='{0}'".format(email)
+            self.data = self.sql.execute("SELECT * FROM appointmentstb WHERE {0}".format(where)).fetchall()
+            return self.data
+        else:
+            where = "email='{0}'".format(email)
+            self.data = self.sql.execute("SELECT * FROM appointmentstb WHERE {0} ORDER BY schedule".format(where)).fetchall()
+            return self.data
 
     def getDoctors(self):
         where = "doctor=1"
@@ -99,34 +125,40 @@ class Database():
 class LoginScreen(Screen):
     print("INITIALIZED: LOGIN SCREEN")
     
+    # Login Verification
     def verifyUser(self):
-        global userlogged, usersDB
-        if usersDB.verifyUserExist(self.useremail.text) == True:
-            userlogged = self.useremail.text
+        global userlogged
+        if usersDB.verifyUserExist(self.ids.useremail.text) == True:
+            userlogged = self.ids.useremail.text
             print("USER " + userlogged + " EXISTS")
-            if self.userpass.text == usersDB.getAccountData(userlogged, 'password'):
-                name = usersDB.getAccountData(userlogged, 'fname') + usersDB.getAccountData(userlogged, 'lname')
-                self.parent.get_screen("kv_menu").usernameText = name
+            if self.ids.userpass.text == usersDB.getAccountData(userlogged, 'password'):
+                if usersDB.getAccountData(userlogged, 'type') == True:
+                    self.parent.get_screen("kv_menu").ids.doctorbutton.text = "My Location"
+                else:
+                    self.parent.get_screen("kv_menu").ids.doctorbutton.text = "Find Doctor"
+                name = usersDB.getAccountData(userlogged, 'fname') + "  " + usersDB.getAccountData(userlogged, 'lname')
+                self.parent.get_screen("kv_menu").navname.text = name
+                self.ids.useremail.text = ""
+                self.ids.userpass.text = ""
+                self.updatePostWall()
                 print("DEBUG: " + userlogged + " has logged in.")
-                self.useremail.text = ""
-                self.userpass.text = ""
                 self.parent.current = "kv_menu"
             else:
-                self.ids.loginlabel.text = "wrong password"
+                self.ids.loginlabel.text = "Invalid Password!"
         else:
-            self.ids.loginlabel.text = "username does not exist"
+            self.ids.loginlabel.text = "Invalid Email!"
 
+    # Automatically insert data to MenuScreen post wall
     def updatePostWall(self):
         self.parent.get_screen("kv_menu").ids.list_on_menu.clear_widgets()
         results = usersDB.getposts()
-        for post in results:
+        for post in reversed(results):
             occupation = usersDB.getAccountData(results[post], 'profession')
             firstname = usersDB.getAccountData(results[post], 'fname')
             lastname = usersDB.getAccountData(results[post], 'lname')
             primary_text = firstname + " " + lastname + " (" + occupation + ")"
-            secondary_text = post
             textprofile = MDRoundFlatButton(text = primary_text, size_hint = (None, 0.2))
-            text = MDLabel(text = secondary_text, size_hint_y = 0.3)
+            text = MDLabel(text = post, size_hint_y = 0.3)
             underline = MDLabel(text = "_"*54, halign = "center", size_hint_y = 0.3)
             self.parent.get_screen("kv_menu").ids.list_on_menu.add_widget(textprofile)
             self.parent.get_screen("kv_menu").ids.list_on_menu.add_widget(text)
@@ -141,12 +173,14 @@ class CreateAccountScreen(Screen):
     def toggleType(self):
         if (self.ids.toggletype.text == 'DOCTOR ACCOUNT'):
             self.ids.toggletype.text = 'STANDARD ACCOUNT'
+            self.ids.profession.hint_text = "Profession"
         elif (self.ids.toggletype.text == 'STANDARD ACCOUNT'):
             self.ids.toggletype.text = 'DOCTOR ACCOUNT'
+            self.ids.profession.hint_text = "Specialization"
         print("DEBUG: Toggling account type button")
     
     def createAccountDB(self):
-        if self.ids.toggleType == "DOCTOR ACCOUNT":
+        if self.ids.toggletype.text == 'DOCTOR ACCOUNT':
             acc_type = True
         else:
             acc_type = False
@@ -158,12 +192,23 @@ class CreateAccountScreen(Screen):
         contact = self.ids.contact.text
         prof = self.ids.profession.text
         usersDB.insert(first, mid, last, contact, email, password, acc_type, prof, "[11, 121]")
-        print("DEBUG: Successfuly created account.")
+        self.parent.get_screen("kv_login").ids.loginlabel.text = "Successfully Created Account!\n You can now login " + first
+        self.clear()
+        print("DEBUG: Successfuly created account.", email)
+
+    
+    def clear(self):
+        self.ids.newemail.text = ""
+        self.ids.newpass.text = ""
+        self.ids.newfirst.text = ""
+        self.ids.newmiddle.text = ""
+        self.ids.newlast.text = ""
+        self.ids.contact.text = ""
+        self.ids.profession.text = ""
 
 
 class MenuScreen(Screen):
     print("INITIALIZED: MENU SCREEN")
-    usernameText = ""
 
     # Automatically creates user's marker in the "set location" map screen
     def setInitialLocation(self):
@@ -174,6 +219,37 @@ class MenuScreen(Screen):
         final_location = locationlist
         print("DEBUG: Initial location has been set.")
 
+    def initializeBookingPage(self):
+        # self.parent.get_screen("kv_listbooking").ids.bookinglist.add_widget()
+        doctor = usersDB.getAccountData(userlogged, 'type')
+        results = usersDB.loadBooking(userlogged)
+        if doctor == True:
+            for appointments in results:
+                if appointments[2] == userlogged:
+                    primary_text = appointments[0]
+                    secondary_text = str(appointments[1])
+                    tertiary_text = appointments[3]
+                    profile = ThreeLineAvatarListItem(text = primary_text, secondary_text = secondary_text, tertiary_text = tertiary_text)
+                    self.parent.get_screen("kv_listbooking").ids.bookinglist.add_widget(profile)
+                    print("DEBUG: Added a appointment in doctor's list")
+                else:
+                    pass
+        else:
+            for appointments in results:
+                if appointments[0] == userlogged:
+                    primary_text = appointments[2]
+                    secondary_text = str(appointments[1])
+                    tertiary_text = appointments[5]
+                    profile = ThreeLineAvatarListItem(text = primary_text, secondary_text = secondary_text, tertiary_text = tertiary_text)
+                    self.parent.get_screen("kv_listbooking").ids.bookinglist.add_widget(profile)
+                    print("DEBUG: Added a appointment to user's pending list")
+                else:
+                    pass
+        
+
+    def loggingout(self):
+        self.parent.get_screen("kv_login").ids.loginlabel.text = "You have been logged out.\n Thanks for using MedCheck " + usersDB.getAccountData(userlogged, 'fname')
+
     def clearposts(self):
         self.parent.get_screen("kv_menu").ids.list_on_menu.clear_widgets()
 
@@ -181,16 +257,28 @@ class MenuScreen(Screen):
 class DeletePostScreen(Screen):
     dialog = None
 
+    def buttonPress(self):
+        if (self.ids.buttondelete.text == 'LOAD MY POSTS'):
+            print("lod post")
+            self.ids.buttondelete.text = "Back"
+            self.ids.delete_label.text = "Your posts have been loaded"
+            self.deletePost()
+        elif (self.ids.buttondelete.text == "Back"):
+            self.ids.delete_list.clear_widgets()
+            self.ids.buttondelete.text = 'LOAD MY POSTS'
+            self.ids.delete_label.text = "Any deletions of posts cannot be undone"
+            self.parent.current = "kv_menu"
+
+
+
     # Function to load the user's posts
     def deletePost(self):
-        global button_load
-        self.ids.delete_text.text = "DELETE POST"
         results = usersDB.getposts()
         users_results = []
-        for post in results:
+        for post in reversed(results):
             if usersDB.getPostAuthor(post) == userlogged:
                 users_results.append(post)
-        for user_post in users_results:
+        for user_post in reversed(users_results):
             secondary_text = user_post
             textprofile = MDRoundFlatButton(text = "REMOVE", size_hint = (None, 0.2), on_release = lambda x:self.deletenow(user_post))
             text = MDLabel(text = secondary_text, size_hint_y = 0.3)
@@ -199,11 +287,6 @@ class DeletePostScreen(Screen):
             self.ids.delete_list.add_widget(text)
             self.ids.delete_list.add_widget(underline)
         print("DEBUG: Successfully Loaded DELETE posts to menu.")
-        self.ids.delete_box.remove_widget(self.ids.delete_text)
-        try:
-            self.ids.delete_box.remove_widget(button_load)
-        except:
-            print("DEBUG: FIRST TIME DELETE, BUTTON NOT DEFINED")
 
     # Popup function to confirm the deletion of post 
     def deletenow(self, postdialogue):
@@ -223,7 +306,7 @@ class DeletePostScreen(Screen):
         usersDB.deletePost(userlogged, post)
         self.ids.delete_list.clear_widgets()
         results = usersDB.getposts()
-        for post in results:
+        for post in reversed(results):
             secondary_text = post
             if userlogged == results[post]:
                 textprofile = MDRoundFlatButton(text = "REMOVE YOUR POST", size_hint = (None, 0.2), on_release = lambda x:self.deletenow(post))
@@ -233,13 +316,6 @@ class DeletePostScreen(Screen):
                 self.ids.delete_list.add_widget(text)
                 self.ids.delete_list.add_widget(underline)
         print("DEBUG: Successfully deleted, refreshing list")
-    
-    # Reseting of button and clearing of list when exiting screen
-    def resetDeleteScreen(self):
-        global button_load
-        self.ids.delete_list.clear_widgets()
-        button_load = MDRoundFlatButton(text = 'LOAD MY POSTS', on_release = lambda x:self.deletePost())
-        self.ids.delete_box.add_widget(button_load)
 
 
 class NewPostScreen(Screen):
@@ -247,31 +323,28 @@ class NewPostScreen(Screen):
 
     # Function to append new post and refresh list
     def appendPost(self):
-        newpost = self.postbox.text
+        newpost = self.ids.postbox.text
         usersDB.insertPost(userlogged, newpost)
         self.parent.get_screen("kv_menu").ids.list_on_menu.clear_widgets()
         global postwallwidgets
         postwallwidgets = []
         results = usersDB.getposts()
-        for post in results:
+        for post in reversed(results):
             occupation = usersDB.getAccountData(results[post], 'profession')
             firstname = usersDB.getAccountData(results[post], 'fname')
             lastname = usersDB.getAccountData(results[post], 'lname')
             primary_text = firstname + " " + lastname + " (" + occupation + ")"
             secondary_text = post
-            # profile = TwoLineAvatarListItem(text = primary_text, secondary_text = occupation, size_hint_y = None)
-            # picture = ImageLeftWidget(source = 'profiles/'+ post['email'] + '.jpg')
-            # profile.add_widget(picture)
-            if userlogged == results[post]:
-                textprofile = MDRoundFlatButton(text = "REMOVE YOUR POST", size_hint = (None, 0.2), on_release = lambda x:self.deletepost(post))
-            else:
-                textprofile = MDRoundFlatButton(text = primary_text, size_hint = (None, 0.2))
+            textprofile = MDRoundFlatButton(text = primary_text, size_hint = (None, 0.2))
             text = MDLabel(text = secondary_text, size_hint_y = 0.3)
             underline = MDLabel(text = "_"*54, halign = "center", size_hint_y = 0.3)
             self.parent.get_screen("kv_menu").ids.list_on_menu.add_widget(textprofile)
             self.parent.get_screen("kv_menu").ids.list_on_menu.add_widget(text)
             self.parent.get_screen("kv_menu").ids.list_on_menu.add_widget(underline)
-        print("DEBUG: Successfully REFRESHED NEW posts to menu.")  
+        print("DEBUG: Successfully loaded posts to menu.")
+
+    def clear(self):
+        self.ids.postbox.text = ""
 
 
 class ProfileScreen(Screen):
@@ -288,13 +361,13 @@ class LocationMapViewScreen(Screen):
         latitude = self.ids.locationmapview.lat
         longitude = self.ids.locationmapview.lon
 
-        if self.ids.locationsetlabel.text == 'Set Location':
+        if self.ids.locationsetlabel.text == 'Your Location':
             self.ids.locationmapview.remove_marker(location_marker)
             location_marker = MapMarkerPopup(lat = latitude, lon = longitude, source = "icons/you.png")
             self.ids.locationmapview.add_widget(location_marker) 
-            self.ids.locationsetlabel.text = 'Click Next'
+            self.ids.locationsetlabel.text = 'Location Updated!'
             final_location = "[" + str(latitude) + ", " + str(longitude) + "]"
-        elif self.ids.locationsetlabel.text == 'Click Next':
+        elif self.ids.locationsetlabel.text == 'Location Updated!':
             self.ids.locationmapview.remove_marker(location_marker) 
             location_marker = MapMarkerPopup(lat = latitude, lon = longitude, source = "icons/you.png")
             self.ids.locationmapview.add_widget(location_marker)
@@ -307,7 +380,12 @@ class LocationMapViewScreen(Screen):
         usersDB.updateLocation(userlogged, final_location)
         self.ids.locationmapview.remove_marker(location_marker) 
         print("DEBUG: User location has been updated. ", final_location)
-
+        self.ids.locationsetlabel.text = 'Your Location'
+        if usersDB.getAccountData(userlogged, 'type') == True:
+            self.parent.current = "kv_menu"
+        else:
+            self.loadDoctors()
+            self.parent.current = "kv_doctorlistview"
 
     # Loads all doctors in Map/List view screen
     def loadDoctors(self):
@@ -336,7 +414,15 @@ class LocationMapViewScreen(Screen):
             primary_text = usersDB.getAccountData(doctor_email, 'fname') + " " + usersDB.getAccountData(doctor_email, 'lname')
             secondary_text = usersDB.getAccountData(doctor_email, 'profession')
             profile = ThreeLineAvatarListItem(text = primary_text, secondary_text = secondary_text, tertiary_text = distance, on_release = lambda doctor_email:self.loadDoctorBooking(doctor_email))
-            picture = ImageLeftWidget(source = "profiles/"+doctor_email+".jpg")
+            exist = True
+            try:
+                image = open("profiles/"+doctor_email+".jpg")
+            except IOError:
+                exist = False
+            if exist == True:
+                picture = ImageLeftWidget(source = "profiles/"+doctor_email+".jpg")
+            else:
+                picture = ImageLeftWidget(source = "profiles/default.png")
             profile.add_widget(picture)
             self.parent.get_screen("kv_doctorlistview").ids.doctor_list.add_widget(profile)
             print("DEBUG: Added a doctor to list")
@@ -351,7 +437,15 @@ class LocationMapViewScreen(Screen):
         for doctor in results:
             location = usersDB.getAccountData(doctor, 'location')
             marker = MapMarkerPopup(lat = location[0], lon = location[1], source = 'icons/marker.png')
-            marker.add_widget(Button(background_normal = "profiles/" + doctor + ".jpg"))
+            existinMap = True
+            try:
+                imagemap = open("profiles/"+doctor_email+".jpg")
+            except IOError:
+                existinMap = False
+            if existinMap == True:
+                marker.add_widget(Button(background_normal = "profiles/" + doctor + ".jpg"))
+            else:
+                marker.add_widget(Button(background_normal = "profiles/default.png"))
             self.parent.get_screen("kv_doctormapview").ids.automaticmapview.add_widget(marker) 
             delete_list.append(marker)
             print("DEBUG: Added a doctor to map")
@@ -379,7 +473,7 @@ class LocationMapViewScreen(Screen):
             raw_list.pop(location)
             raw_list[location] = int(distance)
         print("DEBUG: List has been updated.\n", raw_list)
-        return sorted(raw_list.items(), key = lambda x: x[0])
+        return sorted(raw_list.items(), key = lambda x: x[1])
 
     # Load doctor in list to booking screen
     def loadDoctorBooking(self, doctor):
@@ -408,30 +502,51 @@ class DoctorMapViewScreen(Screen):
 class PatientBookingScreen(Screen):
     print("INITIALIZED: PATIENT BOOKING SCREEN")
     dialog = None
+    date = None
 
-    def submitForm(self, the_date):
+    def submitForm(self):
         if not self.dialog:
             self.dialog = MDDialog(
-            text="Submit Booking\n{0}\n{1}\n{2}".format(self.ids.doctorlabel.text, the_date, self.ids.bookreason.text),
+            text="Submit Booking\n{0}\n{1}\n{2}".format(self.ids.doctorlabel.text, self.date, self.ids.bookreason.text),
             size_hint = (None, None),
             size = (200, 300),
-            buttons=[MDRoundFlatButton(text="BACK", on_release = lambda x:self.dialog.dismiss()),MDRoundFlatButton(text="CONFIRM", on_release = lambda x:self.patientBookingDB(the_date)),],
+            buttons=[MDRoundFlatButton(text="BACK", on_release = lambda x:self.dismiss()),MDRoundFlatButton(text="CONFIRM", on_release = lambda x:self.patientBookingDB(self.date)),],
             )
         self.dialog.open()
 
     def show_datepicker(self):
-        picker = MDDatePicker(callback=self.submitForm)
+        picker = MDDatePicker(callback = self.got_date)
         picker.open()
+    
+    def got_date(self, the_date):
+        self.date = the_date
+    
+    def dismiss(self):
+        self.dialog.dismiss()
+        self.date = None
+        self.dialog = None
 
     def patientBookingDB(self, date):
-        addr1 = self.ids.address1.text
-        breason = self.ids.bookreason.text
-        dateofappo = self.ids.appodate.text
-        # data.insertBook(fname, mname, lname, cnumber, birthdate1, addr1, email, breason, dateofappo, "[0, 0]")
-        print("ADRESS:", addr1)
-        print("res:", breason)
-        print("date:", date)
+        global sm
+        self.dismiss()
+        doctorname = self.ids.doctorlabel.text.split()
+        email = usersDB.getDoctorBug(doctorname[0], doctorname[1])
+        usersDB.insertAppointment(userlogged, date, email, self.ids.bookreason.text, self.ids.address1.text)
+        self.ids.bookreason.text = ""
+        self.ids.address1.text = ""
         print("SUCCESSFULLY BOOKED PATIENT TO DATABASE")
+        sm.current = "kv_doctorlistview"
+
+    def backbutton(self):
+        self.ids.bookreason.text = ""
+        self.ids.address1.text = ""
+
+
+class ListBookingScreen(Screen):
+    print("INITIALIZED: BOOKING LIST VIEW SCREEN")
+
+    def clear(self):
+        self.ids.bookinglist.clear_widgets()
 
 # Main build class
 class medcheckApp(MDApp):
@@ -448,6 +563,7 @@ class medcheckApp(MDApp):
         sm.add_widget(NewPostScreen(name = 'kv_newpostscreen'))
         sm.add_widget(DeletePostScreen(name = 'kv_deletepostscreen'))
         sm.add_widget(PatientBookingScreen(name='kv_bookpatient'))
+        sm.add_widget(ListBookingScreen(name='kv_listbooking'))
         print("INITIALIZED: SCREEN MANAGER AND SCREENS")
         return sm
 

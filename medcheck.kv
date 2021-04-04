@@ -9,6 +9,7 @@ ScreenManager:
     NewPostScreen:
     DeletePostScreen:
     PatientBookingScreen:
+    ListBookingScreen:
 
 
 <LoginScreen>:
@@ -43,14 +44,14 @@ ScreenManager:
     MDRectangleFlatButton:
         text: 'LOGIN'
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
-        on_release: 
-            root.verifyUser()  
-            root.updatePostWall()
+        on_release: root.verifyUser()
     MDRectangleFlatButton:
-        text: 'Create Account'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+        text: 'Create Account?'
+        font_size: '12sp'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.3}
         on_release: 
-            root.manager.current = 'kv_createaccount'   
+            root.manager.current = 'kv_createaccount'
+            root.manager.transition.direction = "up"   
 
 
 <CreateAccountScreen>:
@@ -68,7 +69,7 @@ ScreenManager:
     profession: profession
     MDLabel:
         id: createaccountlabel
-        text: 'create account screen'
+        text: 'CREATE YOUR ACCOUNT'
         halign: 'center'
         pos_hint: {'center_x': 0.5, 'center_y': 0.9}
     MDTextField:
@@ -77,7 +78,7 @@ ScreenManager:
         helper_text: 'please enter your email'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.85}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.80}
         size_hint_x: None
         width: 200
     MDTextField:
@@ -86,7 +87,7 @@ ScreenManager:
         helper_text: 'please enter your password'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.73}
         size_hint_x: None
         width: 200
     MDTextField:
@@ -95,7 +96,7 @@ ScreenManager:
         helper_text: 'please enter your first name'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.65}
         size_hint_x: None
         width: 200
     MDTextField:
@@ -104,7 +105,7 @@ ScreenManager:
         helper_text: 'please enter your middle initial'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
         size_hint_x: None
         width: 200
     MDTextField:
@@ -113,7 +114,7 @@ ScreenManager:
         helper_text: 'please enter your last name'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.65}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.55}
         size_hint_x: None
         width: 200
     MDTextField:
@@ -122,17 +123,17 @@ ScreenManager:
         helper_text: 'please enter your contact number'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.45}
         size_hint_x: None
         width: 200
     MDLabel:
         text: 'SELECT ACCOUNT TYPE'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.55}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.35}
     MDRectangleFlatButton:
         id: toggletype
         text: 'DOCTOR ACCOUNT'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.3}
         on_release: 
             root.toggleType()  
     MDTextField:
@@ -141,7 +142,7 @@ ScreenManager:
         helper_text: 'please enter your work field'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
         size_hint_x: None
         width: 200
     # BoxLayout:
@@ -150,22 +151,31 @@ ScreenManager:
     #         title: 'select image'
     #         halign: 'center'
     #         pos_hint: {'center_x': 0.5, 'center_y': 0.3} 
-    MDRectangleFlatButton:
-        text: 'CREATE'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.2}
-        on_release: 
-            root.createAccountDB()
-            root.manager.current = 'kv_login'  
-    MDRectangleFlatButton:
-        text: 'Back'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.1}
-        on_release: 
-            root.manager.current = 'kv_login'    
+    BoxLayout:
+        padding: [100, 0, 0, 0]
+        orientation: 'horizontal'
+        MDRectangleFlatButton:
+            pos_hint: {'center_y': 0.1}
+            text: 'Back'
+            on_release: 
+                root.clear()
+                root.manager.current = 'kv_login'
+                root.manager.transition.direction = "down" 
+        MDRectangleFlatButton:
+            text: 'CREATE'
+            pos_hint: {'center_y': 0.1}
+            on_release: 
+                root.createAccountDB()
+                root.manager.current = 'kv_login'
+                root.manager.transition.direction = "down"  
+           
 
 
 <MenuScreen>:
     name: 'kv_menu'
     list_on_menu: list_on_menu
+    navname: navname
+    doctorbutton: doctorbutton
     Screen:
         NavigationLayout:
             ScreenManager:
@@ -187,10 +197,10 @@ ScreenManager:
                     spacing: '4dp'
                     padding: '4dp'
                     Image:
-                        source: 'as@gmail.com.jpg'
+                        source: 'profiles/default.png'
                     MDLabel:
-                        id: menu_nav_drawer_user_ID
-                        text: root.usernameText
+                        id: navname
+                        text: ""
                         halign: 'center'
                         size_hint_y: None
                         height: self.texture_size[1]
@@ -207,11 +217,14 @@ ScreenManager:
                                     text: "My Booking"
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
                                     on_release:
-                                        root.manager.current = "kv_automaticbooking"
+                                        root.initializeBookingPage()
+                                        root.manager.current = "kv_listbooking"
+                                        root.manager.transition.direction = "left"
                             OneLineIconListItem:
                                 IconLeftWidget:
                                     icon: "doctor"
                                 MDFlatButton:
+                                    id: doctorbutton
                                     text: "Find Doctors"
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
                                     on_release: 
@@ -224,12 +237,14 @@ ScreenManager:
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
                                     on_release:
                                         root.manager.current = 'kv_newpostscreen'
+                                        root.manager.transition.direction = "left"
                             OneLineIconListItem:
                                 MDFlatButton:
                                     text: "Delete Post"
                                     pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
                                     on_release:
                                         root.manager.current = 'kv_deletepostscreen'
+                                        root.manager.transition.direction = "left"
                             OneLineIconListItem:
                                 IconLeftWidget:
                                     icon: 'file-upload'
@@ -250,38 +265,43 @@ ScreenManager:
     BoxLayout:
         orientation: 'vertical'
         MDLabel:
-            text: 'Share anything, be yourself. Be free'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+            text: 'Type you new post here! Everyone will see it!'
             halign: 'center'
         MDTextField:
             id: postbox
-            hint_text: 'Type your new post here'
-            helper_text: 'please enter your text here'
+            hint_text: 'Post Box'
+            helper_text: 'Share anything, be yourself. Be free'
             helper_text_mode: 'on_focus'
             halign: 'center'
-            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            pos_hint: {'center_x': 0.5, 'center_y': 0.7}
             size_hint_x: None
-            size_hint_y: None
             width: 200
-            height: 500
-        MDRectangleFlatButton:
-            text: 'Next'
-            pos_hint: {'center_y': 0.5}
-            on_release: 
-                root.appendPost()
-                root.manager.current = "kv_menu"
-        MDRectangleFlatButton:
-            text: 'Back.'
-            pos_hint: {'center_y': 0.5}
-            width: 0.2
-            on_release: 
-                root.manager.current = "kv_menu"
-                root.manager.transition.direction = "right"
+        BoxLayout:
+            padding: [100, 0, 0, 0]
+            orientation: 'horizontal'
+            MDRectangleFlatButton:
+                text: 'Back'
+                pos_hint: {'center_y': 0.5}
+                width: 0.2
+                on_release: 
+                    root.clear()
+                    root.manager.current = "kv_menu"
+                    root.manager.transition.direction = "right"
+            MDRectangleFlatButton:
+                text: 'Next'
+                pos_hint: {'center_y': 0.5}
+                on_release: 
+                    root.appendPost()
+                    root.clear()
+                    root.manager.current = "kv_menu"
+                    root.manager.transition.direction = "right"
 
 
 <DeletePostScreen>:
     name: "kv_deletepostscreen"
     delete_list: delete_list
-    delete_text: delete_text
+    buttondelete: buttondelete
     delete_box: delete_box
     delete_label: delete_label
     BoxLayout:
@@ -293,22 +313,17 @@ ScreenManager:
                     id: delete_list
         MDLabel:
             id: delete_label
-            text: 'Any deletions of posts cnanot be undone'
+            text: 'Any deletions of posts cannot be undone'
             halign: 'center'
-        MDRectangleFlatButton:
-            id: delete_text
-            text: 'LOAD MY POSTS'
-            pos_hint: {'center_y': 0.5}
-            on_release: 
-                root.deletePost()
         BoxLayout: 
+            padding: [120, 0, 0, 0]
+            orientation: 'horizontal'
             MDRectangleFlatButton:
-                text: 'Back.'
-                pos_hint: {'center_y': 0.5}
-                width: 0.2
+                id: buttondelete
+                text: 'LOAD MY POSTS'
+                pos_hint: {'center_y': 0.8}
                 on_release: 
-                    root.resetDeleteScreen()
-                    root.manager.current = "kv_menu"
+                    root.buttonPress()
                     root.manager.transition.direction = "right"
 
 
@@ -324,14 +339,17 @@ ScreenManager:
             lon: 121.85
             zoom: 5
             double_tap_zoom: True
-        BoxLayout:
-            orientation: 'horizontal'
-            spacing: 8
+        MDLabel:
+            id: locationsetlabel
             size_hint_y: None
-            MDLabel:
-                id: locationsetlabel
-                text: 'Set Location'
-                halign: 'center'
+            text: 'Your Location'
+            halign: 'center'
+            height: 30
+        BoxLayout:
+            padding: [100, 0, 0, 0]
+            size_hint_y: None
+            height: 50
+            orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'Set Marker'
                 pos_hint: {'center_y': 0.5}
@@ -340,15 +358,13 @@ ScreenManager:
             MDRectangleFlatButton:
                 text: 'Next'
                 pos_hint: {'center_y': 0.5}
-                on_release: 
-                    root.manager.current = 'kv_doctorlistview'
+                on_release:
                     root.updateLocation()
-                    root.loadDoctors()
 
 
 <DoctorMapViewScreen>:
     name: "kv_doctormapview"
-    bs: automaticmapview
+    automaticmapview: automaticmapview
     BoxLayout:
         orientation: 'vertical'
         MapView:
@@ -358,9 +374,10 @@ ScreenManager:
             zoom: 5
             double_tap_zoom: True
         BoxLayout:
-            orientation: 'horizontal'
-            spacing: 8
+            padding: [100, 0, 0, 0]
             size_hint_y: None
+            height: 50
+            orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'List View'
                 pos_hint: {'center_y': 0.5}
@@ -381,9 +398,10 @@ ScreenManager:
                     text: 'Search your nearest doctor'
                     halign: 'center'
         BoxLayout:
-            orientation: 'horizontal'
-            spacing: 8
+            padding: [100, 0, 0, 0]
             size_hint_y: None
+            height: 50
+            orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'Back.'
                 pos_hint: {'center_y': 0.5}
@@ -444,13 +462,45 @@ ScreenManager:
         width: 200
     MDRectangleFlatButton:
         id: appodate
-        text: 'Set Date and Submit'
+        text: 'Set Date'
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
         on_release:
             root.show_datepicker()
     MDRectangleFlatButton:
+        id: submit
+        text: 'Submit Request'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.35}
+        on_release:
+            root.submitForm()
+    MDRectangleFlatButton:
         text: 'Back'
         pos_hint: {'center_x': 0.5, 'center_y': 0.1}
         on_release:
+            root.backbutton()
             root.manager.current = 'kv_doctorlistview'
 
+
+<ListBookingScreen>:
+    name: "kv_listbooking"
+    bookinglist: bookinglist
+    BoxLayout:
+        orientation: 'vertical'
+        ScrollView:
+            MDList:
+                id: bookinglist
+                MDLabel:
+                    text: 'Booking List'
+                    halign: 'center'
+        BoxLayout:
+            padding: [130, 0, 0, 0]
+            size_hint_y: None
+            height: 50
+            orientation: 'horizontal'
+            MDRectangleFlatButton:
+                text: 'Back'
+                pos_hint: {'center_y': 0.5}
+                width: 0.2
+                on_release: 
+                    root.clear()
+                    root.manager.current = "kv_menu"
+                    root.manager.transition.direction = "right"

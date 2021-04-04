@@ -30,3 +30,13 @@ cur.execute("INSERT INTO poststb VALUES ('Rick@gmail','Humans share 98.8% of the
 cur.execute("INSERT INTO poststb VALUES ('Kelly@gmail','I had a GREAT week, thanks to YOU! ')")
 
 userdb.commit()
+
+to continute:
+>submit booking to db
+>open my booking page, for user see my books, for doctor manage request books
+>my profile (just show profile no edit yet)
+
+padding: [0, 0, 0, 0]
+[padding_left, padding_top, padding_right, padding_bottom].
+
+missing validation in createAccountDB
