@@ -18,40 +18,51 @@ ScreenManager:
     loginlabel: loginlabel
     useremail:  useremail
     userpass: userpass
+    Image:
+        id: imageView
+        source: 'textures/MediCheckLogo.jpg'
+        allow_stretch: True
+        size_hint_x: 0.4
+        pos_hint: {'center_x': 0.5, 'center_y': 0.9}
     MDLabel:
         id: loginlabel
-        text: 'Welcome to Medcheck'
+        text: 'Welcome to Medicheck'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+        font_size: 40
     MDTextField:
         id: useremail
         hint_text: 'Email'
         helper_text: 'please enter your email'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.7}
-        size_hint_x: None
-        width: 200
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        size_hint: .5, 1
     MDTextField:
         id: userpass
         hint_text: 'Password'
         helper_text: 'please enter your password'
         helper_text_mode: 'on_focus'
         halign: 'center'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-        size_hint_x: None
-        width: 200
-    MDRectangleFlatButton:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+        size_hint: .5, 1
+    MagicButton:
         text: 'LOGIN'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
-        on_release: root.verifyUser()
-    MDRectangleFlatButton:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.35}
+        size_hint: .5, .05
+        on_release:
+            root.verifyUser()
+            self.wobble()
+    MagicButton:
         text: 'Create Account?'
         font_size: '12sp'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.29}
+        size_hint: .5, .05
         on_release: 
             root.manager.current = 'kv_createaccount'
-            root.manager.transition.direction = "up"   
+            root.manager.transition.direction = "up"
+            self.twist()
+
 
 
 <CreateAccountScreen>:
@@ -72,6 +83,7 @@ ScreenManager:
         text: 'CREATE YOUR ACCOUNT'
         halign: 'center'
         pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+        font_size: 40
     MDTextField:
         id: newemail
         hint_text: 'Email'
@@ -152,7 +164,8 @@ ScreenManager:
     #         halign: 'center'
     #         pos_hint: {'center_x': 0.5, 'center_y': 0.3} 
     BoxLayout:
-        padding: [100, 0, 0, 0]
+        padding: [240, 0, 0, 0]
+        spacing: 20
         orientation: 'horizontal'
         MDRectangleFlatButton:
             pos_hint: {'center_y': 0.1}
@@ -268,6 +281,7 @@ ScreenManager:
             pos_hint: {'center_x': 0.5, 'center_y': 0.8}
             text: 'Type you new post here! Everyone will see it!'
             halign: 'center'
+            font_size: 40
         MDTextField:
             id: postbox
             hint_text: 'Post Box'
@@ -275,10 +289,11 @@ ScreenManager:
             helper_text_mode: 'on_focus'
             halign: 'center'
             pos_hint: {'center_x': 0.5, 'center_y': 0.7}
-            size_hint_x: None
+            size_hint: .5, 1
             width: 200
         BoxLayout:
-            padding: [100, 0, 0, 0]
+            padding: [250, 0, 0, 0]
+            spacing: 20
             orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'Back'
@@ -315,8 +330,10 @@ ScreenManager:
             id: delete_label
             text: 'Any deletions of posts cannot be undone'
             halign: 'center'
+            font_size: 40
         BoxLayout: 
-            padding: [120, 0, 0, 0]
+            padding: [250, 0, 0, 0]
+            spacing: 20
             orientation: 'horizontal'
             MDRectangleFlatButton:
                 id: buttondelete
@@ -344,11 +361,10 @@ ScreenManager:
             size_hint_y: None
             text: 'Your Location'
             halign: 'center'
-            height: 30
         BoxLayout:
-            padding: [100, 0, 0, 0]
-            size_hint_y: None
-            height: 50
+            padding: [250, 0, 0, 0]
+            spacing: 20
+            size_hint_y: 0.1
             orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'Set Marker'
@@ -374,9 +390,9 @@ ScreenManager:
             zoom: 5
             double_tap_zoom: True
         BoxLayout:
-            padding: [100, 0, 0, 0]
-            size_hint_y: None
-            height: 50
+            padding: [250, 0, 0, 0]
+            spacing: 20
+            size_hint_y: 0.1
             orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'List View'
@@ -398,9 +414,9 @@ ScreenManager:
                     text: 'Search your nearest doctor'
                     halign: 'center'
         BoxLayout:
-            padding: [100, 0, 0, 0]
-            size_hint_y: None
-            height: 50
+            padding: [250, 0, 0, 0]
+            spacing: 20
+            size_hint_y: 0.1
             orientation: 'horizontal'
             MDRectangleFlatButton:
                 text: 'Back.'

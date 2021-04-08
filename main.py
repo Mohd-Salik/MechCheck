@@ -4,12 +4,19 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivymd.uix.picker import MDDatePicker
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import Button, MDRoundFlatButton
+from kivymd.uix.button import Button, MDRoundFlatButton, MDRaisedButton, MDFillRoundFlatButton
 from kivymd.uix.screen import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarListItem, ThreeLineAvatarListItem, TwoLineAvatarListItem, ImageLeftWidget
 from kivy_garden.mapview import MapView, MapMarkerPopup
+from kivymd.uix.behaviors.magic_behavior import MagicBehavior
+
+class MagicButton(MagicBehavior, MDFillRoundFlatButton):
+    pass
+
+class MagicButton1(MagicBehavior, MDRaisedButton):
+    pass
 
 class Database():
     def __init__(self, **kwargs):
@@ -27,16 +34,15 @@ class Database():
 
     def insertAppointment(self, email, schedule, doctor, reason, address):
         print("DATABASE: insertappointment")
-        self.sql.execute("INSERT INTO appointmentstb VALUES ('{0}','{1}','{2}', '{3}', '{4}', 'pending')".format(
-            email, schedule, doctor, reason, address
-        ))
+        self.sql.execute("INSERT INTO appointmentstb VALUES ('{0}', '{1}','{2}', '{3}', '{4}', 'pending')".format(email, schedule, doctor, reason, address))
         self.db.commit()
 
-    def insert(self, first, mid, last, contact, email, password, type, prof, location):
+    def insert(self, first, mid, last, contact, email, password, account, prof, location):
         print("DATABASE: insert")
-        self.sql.execute("INSERT INTO userstb VALUES ('{0}','{1}','{2}', '{3}', '{4}', '{5}', {6}, '{7}', '{8}')".format(
-            first, mid, last, contact, email, password, type, prof, location
-        ))
+        if account == True:
+            self.sql.execute("INSERT INTO userstb VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', 1, '{6}', '{7}')".format(first, mid, last, contact, email, password, prof, location))
+        else:
+            self.sql.execute("INSERT INTO userstb VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', 0, '{6}', '{7}')".format(first, mid, last, contact, email, password, prof, location))
         self.db.commit()
 
     def getAccountData(self, email, data):
@@ -180,6 +186,7 @@ class CreateAccountScreen(Screen):
         print("DEBUG: Toggling account type button")
     
     def createAccountDB(self):
+        acc_type = None
         if self.ids.toggletype.text == 'DOCTOR ACCOUNT':
             acc_type = True
         else:
@@ -191,7 +198,8 @@ class CreateAccountScreen(Screen):
         last = self.ids.newlast.text
         contact = self.ids.contact.text
         prof = self.ids.profession.text
-        usersDB.insert(first, mid, last, contact, email, password, acc_type, prof, "[11, 121]")
+        location = "[11.02, 121.02]"
+        usersDB.insert(first, mid, last, contact, email, password, acc_type, prof, location)
         self.parent.get_screen("kv_login").ids.loginlabel.text = "Successfully Created Account!\n You can now login " + first
         self.clear()
         print("DEBUG: Successfuly created account.", email)
@@ -239,7 +247,7 @@ class MenuScreen(Screen):
                 if appointments[0] == userlogged:
                     primary_text = appointments[2]
                     secondary_text = str(appointments[1])
-                    tertiary_text = appointments[5]
+                    tertiary_text = appointments[3]
                     profile = ThreeLineAvatarListItem(text = primary_text, secondary_text = secondary_text, tertiary_text = tertiary_text)
                     self.parent.get_screen("kv_listbooking").ids.bookinglist.add_widget(profile)
                     print("DEBUG: Added a appointment to user's pending list")
@@ -417,6 +425,7 @@ class LocationMapViewScreen(Screen):
             exist = True
             try:
                 image = open("profiles/"+doctor_email+".jpg")
+                image.close()
             except IOError:
                 exist = False
             if exist == True:
@@ -440,6 +449,7 @@ class LocationMapViewScreen(Screen):
             existinMap = True
             try:
                 imagemap = open("profiles/"+doctor_email+".jpg")
+                imagemap.close()
             except IOError:
                 existinMap = False
             if existinMap == True:
@@ -454,11 +464,13 @@ class LocationMapViewScreen(Screen):
     # Haversine's Algorithm, returns the sorted distances of the doctors
     def calculateHaversine(self, list_doctors):
         raw_list = list_doctors
+        new_list = {}
         user_location = usersDB.getAccountData(userlogged, 'location')
-
         # Apply the formula to each location of the doctors
         for location in raw_list:
+            
             doctor_location = raw_list[location]
+            print("RAW LSIT: 0", doctor_location)
             lat1 = user_location[0] 
             lon1 = user_location[1]
             lat2 = doctor_location[0]
@@ -470,10 +482,9 @@ class LocationMapViewScreen(Screen):
                 * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
             c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
             distance = radius * c
-            raw_list.pop(location)
-            raw_list[location] = int(distance)
+            new_list[location] = int(distance)
         print("DEBUG: List has been updated.\n", raw_list)
-        return sorted(raw_list.items(), key = lambda x: x[1])
+        return sorted(new_list.items(), key = lambda x: x[1])
 
     # Load doctor in list to booking screen
     def loadDoctorBooking(self, doctor):
@@ -575,9 +586,7 @@ if __name__ == "__main__":
 
     # usersDB.debug()
     # print("OK")
-
     # # Kivy Initialization
-    Window.size = (390, 700)
 
     print("INITIALIZED: MAIN")
     medcheckApp().run()
