@@ -26,10 +26,6 @@ class Database():
 
     def debug(self):
         self.sql.execute("DELETE FROM appointmentstb")
-        # self.sql.execute('''CREATE TABLE appointmentstb
-        #     (email text, schedule date, doctor text, reason text, addres text, stats text)''')
-
-        # self.sql.execute("INSERT INTO userstb VALUES ('Mike','M','Myers', '095482081', '1', '1', false, 'Civil Engineer', '[0.43, 123.88]')")
         self.db.commit()
 
     def insertAppointment(self, email, schedule, doctor, reason, address):
