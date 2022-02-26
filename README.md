@@ -8,6 +8,7 @@ Medicheck is a crossplatform prototype application deployed on both PC and Andro
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 **PREVIEW**
+
 ![free Delivery (1)](https://user-images.githubusercontent.com/60991019/155828796-530b9e83-4d6e-43c9-8a5e-e93957708744.png)
 ![image](https://user-images.githubusercontent.com/60991019/155828866-0506ac79-f9d7-46e1-ba44-a44ecb7d6b3a.png)
 
@@ -19,6 +20,7 @@ https://github.com/Mohd-Salik/MedCheck/releases
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 **GUI**
+
 The application was programmed using the Kivy library to support its cross platform capabilities. Medicheck utilizes third party libraries such as KivyMD that allows the design and UI of the application be upto date with the current industry standards.
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
