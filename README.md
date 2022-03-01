@@ -1,4 +1,7 @@
-# MediCheck v1.2
+# MediCheck v1.2   
+
+Developed by: Mohammad Alfonso Salik, Joshua Ron Hombre, Andrei Jarode Gatab
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 **ABOUT THIS PROJECT**
 
